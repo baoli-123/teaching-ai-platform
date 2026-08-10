@@ -9,6 +9,24 @@
 - 在线考试：课程题库、在线答题、自动判分、答题解析
 - 学情统计：课程、资源、题目、问答和考试记录统计
 
+## 当前实现范围
+
+当前仓库是可在本地直接运行验证的 MVP 版本，已实现：
+
+- Spring Boot 3.3 + MyBatis-Plus + H2
+- 课程资源、题库、考试判分与学情看板
+- RAG 知识检索问答与 WebSocket 实时对话
+- Vue 3 前端页面与 REST API
+- 可选 OpenAI 兼容大模型接口，无 Key 时可使用内置知识库回答
+
+以下能力属于后续迭代方向，当前代码尚未实现，不会在 README 或简历中写成已上线能力：
+
+- Spring Security + JWT + RBAC
+- Redis 主从、Redisson 布隆过滤器、Lettuce 读写分离
+- Redis + Lua 限流、Sentinel 熔断降级
+- 浏览量与学习进度异步同步机制
+- 流式首字响应、全链路审计、中英双语 i18n
+
 ## 技术栈
 
 - Spring Boot 3.3
