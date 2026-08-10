@@ -14,99 +14,108 @@
         <h1>双语教学资源平台</h1>
         <p>AI 教学场景解决方案 · 课程资源 · AI 问答 · 在线考试 · 学情统计</p>
       </div>
-      <div class="status" :class="{ on: connected }">
-        WebSocket {{ connected ? '已连接' : '未连接' }}
+      <div class="user-actions">
+        <div class="status" :class="{ on: connected }">
+          WebSocket {{ connected ? '已连接' : '未连接' }}
+        </div>
+        <button v-if="user" @click="setLocale('en')">EN</button>
+        <button v-if="user" @click="setLocale('zh')">中文</button>
+        <button v-if="user" @click="logout">退出</button>
+        <span v-if="user" class="user-name">{{ user.displayName }} · {{ user.role }}</span>
       </div>
     </header>
 
-    <nav class="tabs">
+    <section v-if="!user" class="panel login-panel">
+      <h2>登录</h2>
+      <div class="toolbar">
+        <input v-model="loginUsername" placeholder="用户名">
+        <input v-model="loginPassword" type="password" placeholder="密码" @keyup.enter="login">
+        <button @click="login">登录</button>
+      </div>
+      <p class="empty">演示账号：admin/admin123、teacher/teacher123、student/student123</p>
+    </section>
+
+    <template v-else>
+      <nav class="tabs">
       <button
         v-for="tab in tabs"
         :key="tab.key"
         :class="{ active: activeTab === tab.key }"
         @click="switchTab(tab.key)"
       >{{ tab.label }}</button>
-    </nav>
+      </nav>
 
-    <main>
-      <section v-if="activeTab === 'resources'" class="panel">
-        <div class="toolbar">
-          <label>选择课程</label>
-          <select v-model.number="courseId" @change="loadResources">
-            <option v-for="course in courses" :key="course.id" :value="course.id">{{ course.name }}</option>
-          </select>
-        </div>
-        <div class="grid">
-          <article v-for="item in resources" :key="item.id" class="card">
-            <h3>{{ item.title }}</h3>
-            <span class="pill">{{ item.type }}</span>
-            <p>{{ item.content }}</p>
-          </article>
-        </div>
-      </section>
-
-      <section v-if="activeTab === 'chat'" class="panel">
-        <div class="chatbox">
-          <div v-for="(message, index) in chatMessages" :key="index" class="msg" :class="message.role">
-            <strong>{{ message.role === 'user' ? '我' : 'AI' }}</strong>
-            <p>{{ message.text }}</p>
+      <main>
+        <section v-if="activeTab === 'resources'" class="panel">
+          <div class="toolbar">
+            <label>选择课程</label>
+            <select v-model.number="courseId" @change="loadResources">
+              <option v-for="course in courses" :key="course.id" :value="course.id">{{ course.name }}</option>
+            </select>
           </div>
-          <p v-if="!chatMessages.length" class="empty">输入问题，AI 会根据课程知识库回答。</p>
-        </div>
-        <div class="chat-input">
-          <input
-            v-model="chatInput"
-            @keyup.enter="sendChat"
-            placeholder="例如：HashMap 的底层原理是什么？"
-          >
-          <button @click="sendChat">发送</button>
-        </div>
-      </section>
-
-      <section v-if="activeTab === 'exam'" class="panel">
-        <div class="toolbar">
-          <label>选择课程</label>
-          <select v-model.number="courseId" @change="loadQuestions">
-            <option v-for="course in courses" :key="course.id" :value="course.id">{{ course.name }}</option>
-          </select>
-          <input v-model="studentName" placeholder="姓名（选填）">
-          <button @click="submitExam">提交考试</button>
-        </div>
-
-        <article v-for="question in questions" :key="question.id" class="card question">
-          <h3>{{ question.stem }}</h3>
-          <label v-for="option in options(question)" :key="option.key">
-            <input
-              type="radio"
-              :name="'question-' + question.id"
-              :value="option.key"
-              v-model="examAnswers[question.id]"
-            >
-            {{ option.label }}
-          </label>
-        </article>
-
-        <div v-if="examResult" class="result">
-          <h3>得分：{{ examResult.score }} / {{ examResult.total }}</h3>
-          <p v-for="(detail, index) in examResult.detail" :key="index">{{ detail }}</p>
-        </div>
-      </section>
-
-      <section v-if="activeTab === 'dashboard'" class="panel">
-        <div class="stats">
-          <div v-for="item in statItems" :key="item.label" class="stat">
-            <strong>{{ item.value }}</strong>
-            <span>{{ item.label }}</span>
+          <div class="grid">
+            <article v-for="item in resources" :key="item.id" class="card">
+              <h3>{{ item.title }}</h3>
+              <span class="pill">{{ item.type }}</span>
+              <p>{{ item.content }}</p>
+            </article>
           </div>
-        </div>
-        <div class="records">
-          <article v-for="record in records" :key="record.id" class="card">
-            <h3>{{ record.studentName }} · {{ record.score }}/{{ record.total }}</h3>
-            <p>{{ record.detail }}</p>
+        </section>
+
+        <section v-if="activeTab === 'chat'" class="panel">
+          <div class="chatbox">
+            <div v-for="(message, index) in chatMessages" :key="index" class="msg" :class="message.role">
+              <strong>{{ message.role === 'user' ? '我' : 'AI' }}</strong>
+              <p>{{ message.text }}</p>
+            </div>
+            <p v-if="!chatMessages.length" class="empty">输入问题，AI 会根据课程知识库回答。</p>
+          </div>
+          <div class="chat-input">
+            <input v-model="chatInput" @keyup.enter="sendChat" placeholder="例如：HashMap 的底层原理是什么？">
+            <button @click="sendChat">发送</button>
+          </div>
+        </section>
+
+        <section v-if="activeTab === 'exam'" class="panel">
+          <div class="toolbar">
+            <label>选择课程</label>
+            <select v-model.number="courseId" @change="loadQuestions">
+              <option v-for="course in courses" :key="course.id" :value="course.id">{{ course.name }}</option>
+            </select>
+            <input v-model="studentName" placeholder="姓名（选填）">
+            <button @click="submitExam">提交考试</button>
+          </div>
+
+          <article v-for="question in questions" :key="question.id" class="card question">
+            <h3>{{ question.stem }}</h3>
+            <label v-for="option in options(question)" :key="option.key">
+              <input type="radio" :name="'question-' + question.id" :value="option.key" v-model="examAnswers[question.id]">
+              {{ option.label }}
+            </label>
           </article>
-        </div>
-      </section>
-    </main>
+
+          <div v-if="examResult" class="result">
+            <h3>得分：{{ examResult.score }} / {{ examResult.total }}</h3>
+            <p v-for="(detail, index) in examResult.detail" :key="index">{{ detail }}</p>
+          </div>
+        </section>
+
+        <section v-if="activeTab === 'dashboard'" class="panel">
+          <div class="stats">
+            <div v-for="item in statItems" :key="item.label" class="stat">
+              <strong>{{ item.value }}</strong>
+              <span>{{ item.label }}</span>
+            </div>
+          </div>
+          <div class="records">
+            <article v-for="record in records" :key="record.id" class="card">
+              <h3>{{ record.studentName }} · {{ record.score }}/{{ record.total }}</h3>
+              <p>{{ record.detail }}</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </template>
   </div>
   <script src="app.js"></script>
 </body>

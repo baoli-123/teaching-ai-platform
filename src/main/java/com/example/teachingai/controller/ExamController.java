@@ -1,5 +1,8 @@
 package com.example.teachingai.controller;
 
+import com.example.teachingai.annotation.AuditLog;
+import com.example.teachingai.annotation.PreventDuplicateSubmit;
+import com.example.teachingai.annotation.RateLimit;
 import com.example.teachingai.dto.ApiResponse;
 import com.example.teachingai.dto.ExamSubmitRequest;
 import com.example.teachingai.entity.ExamRecord;
@@ -30,6 +33,9 @@ public class ExamController {
     }
 
     @PostMapping("/exams/submit")
+    @RateLimit(key = "exam", limit = 10, windowSeconds = 60)
+    @PreventDuplicateSubmit(key = "exam", expireSeconds = 10)
+    @AuditLog("提交在线考试")
     public ApiResponse<Map<String, Object>> submit(@RequestBody ExamSubmitRequest request) {
         return ApiResponse.ok(examService.submit(request));
     }

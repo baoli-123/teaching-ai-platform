@@ -5,27 +5,36 @@
 ## 核心功能
 
 - 课程与教学资源管理：按课程查看课件、文档、视频等资源
-- AI 智能问答：基于知识库检索的 RAG 问答，支持 WebSocket 对话
+- AI 智能问答：基于知识库检索的 RAG 问答，支持 WebSocket 流式分块响应与心跳保活
 - 在线考试：课程题库、在线答题、自动判分、答题解析
 - 学情统计：课程、资源、题目、问答和考试记录统计
+- JWT 认证：Access Token 与 Refresh Token，RBAC 三角色权限
+- 请求防护：接口限流、防重复提交、全局异常与操作审计
+- 学习进度：异步记录浏览进度，定时批量同步到数据库
+- 国际化：中英双语资源文件与 Cookie 语言切换
 
 ## 当前实现范围
 
-当前仓库是可在本地直接运行验证的 MVP 版本，已实现：
+当前仓库可在本地直接运行验证，已实现：
 
 - Spring Boot 3.3 + MyBatis-Plus + H2
 - 课程资源、题库、考试判分与学情看板
-- RAG 知识检索问答与 WebSocket 实时对话
+- RAG 知识检索问答与 WebSocket 流式分块推送
+- Spring Security + JWT + RBAC（管理员、教师、学生）
+- AOP 审计日志、全局异常处理、MessageSource 中英双语
+- 限流注解、防重复提交注解与 Sentinel 降级兜底
+- 学习进度异步缓冲与定时批量同步
+- Redis Lua 滑动窗口限流脚本（默认关闭，未连接 Redis 时使用本地滑动窗口兜底）
 - Vue 3 前端页面与 REST API
 - 可选 OpenAI 兼容大模型接口，无 Key 时可使用内置知识库回答
 
-以下能力属于后续迭代方向，当前代码尚未实现，不会在 README 或简历中写成已上线能力：
+以下能力属于后续迭代方向，当前代码尚未实现：
 
-- Spring Security + JWT + RBAC
-- Redis 主从、Redisson 布隆过滤器、Lettuce 读写分离
-- Redis + Lua 限流、Sentinel 熔断降级
-- 浏览量与学习进度异步同步机制
-- 流式首字响应、全链路审计、中英双语 i18n
+- Redis 主从架构、Lettuce 读写分离、Redisson 布隆过滤器
+- Redis Token 会话与 Refresh Token 分布式存储
+- Sentinel Dashboard 与规则持久化
+- 大模型真实 Token 级流式首字响应
+- 生产级 MySQL/Redis 集群部署
 
 ## 技术栈
 
@@ -46,6 +55,14 @@ mvn spring-boot:run
 
 ```text
 http://localhost:8080
+```
+
+演示账号：
+
+```text
+管理员：admin / admin123
+教师：teacher / teacher123
+学生：student / student123
 ```
 
 H2 控制台：

@@ -29,6 +29,19 @@ body {
 
 .topbar h1 { font-size: 22px; letter-spacing: 0; }
 .topbar p { color: var(--muted); font-size: 14px; }
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.user-actions button {
+  padding: 6px 10px;
+  font-size: 13px;
+  background: #eef3fb;
+  color: var(--accent);
+}
+.user-name { color: var(--muted); font-size: 13px; }
 .status {
   padding: 6px 12px;
   border-radius: 6px;
@@ -59,6 +72,17 @@ body {
   color: var(--accent);
   font-weight: 600;
 }
+
+.login-panel {
+  max-width: 560px;
+  margin: 28px auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+}
+.login-panel h2 { margin-bottom: 12px; }
+.login-panel .toolbar input { flex: 1; min-width: 160px; }
 
 main { padding: 18px 28px 32px; }
 .panel { max-width: 1120px; margin: 0 auto; }

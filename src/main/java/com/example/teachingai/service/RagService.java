@@ -29,6 +29,10 @@ public class RagService {
 
     private static final Pattern TOKEN_PATTERN = Pattern.compile("[a-z0-9]+|[\\u4e00-\\u9fa5]");
     private static final int TOP_K = 3;
+    private static final List<String> DICTIONARY = List.of(
+            "hashmap", "二叉搜索树", "快速排序", "动态规划", "三次握手",
+            "状态码", "https", "事务", "索引", "join", "tcp", "http"
+    );
 
     private final KnowledgeChunkMapper knowledgeChunkMapper;
     private final ObjectMapper objectMapper;
@@ -99,8 +103,13 @@ public class RagService {
 
     private List<String> tokenize(String text) {
         String normalized = text.toLowerCase(Locale.ROOT);
-        Matcher matcher = TOKEN_PATTERN.matcher(normalized);
         List<String> tokens = new ArrayList<>();
+        for (String term : DICTIONARY) {
+            if (normalized.contains(term)) {
+                tokens.add(term);
+            }
+        }
+        Matcher matcher = TOKEN_PATTERN.matcher(normalized);
         while (matcher.find()) {
             tokens.add(matcher.group());
         }
